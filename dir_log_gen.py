@@ -13,10 +13,18 @@ import logging
 
 # Custom exception for more granular error handling
 class DirectoryLoggerError(Exception):
+    """Custom exception for DirectoryLogger errors."""
     pass
 
 
 class DirectoryLogger:
+    """
+    A class to log directory contents with metadata.
+
+    This class traverses a directory structure, collects information about files and
+    subdirectories, and outputs the data in various formats.
+    """
+
     def __init__(
         self,
         path: str,
@@ -27,6 +35,17 @@ class DirectoryLogger:
         to_console: bool = False,
         verbose: bool = False,
     ):
+        """
+        Initialize the DirectoryLogger with the given parameters.
+
+        :param path: The root directory to start logging from.
+        :param log_file: The file to write the log output to.
+        :param file_extension: Optional file extension to filter files.
+        :param max_depth: Optional maximum depth for directory traversal.
+        :param output_format: The format of the output log (text, json, csv, or xml).
+        :param to_console: Whether to also print the output to console.
+        :param verbose: Whether to enable verbose logging.
+        """
         self.path = Path(path)
         self.log_file = log_file
         self.file_extension = file_extension
@@ -41,6 +60,7 @@ class DirectoryLogger:
         self.setup_logging()
 
     def setup_logging(self) -> None:
+        """Set up logging configuration based on verbosity level."""
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(
             level=level,
@@ -57,6 +77,12 @@ class DirectoryLogger:
             logging.getLogger().addHandler(console_handler)
 
     def get_file_info(self, file_path: Path) -> Dict[str, Union[str, int]]:
+        """
+        Get metadata for a single file.
+
+        :param file_path: Path to the file.
+        :return: Dictionary containing file metadata.
+        """
         try:
             stats = file_path.stat()
             return {
@@ -72,6 +98,14 @@ class DirectoryLogger:
     def process_directory(
         self, root: Path, dirs: List[str], files: List[str]
     ) -> Dict[str, Union[str, List[Union[str, Dict[str, Union[str, int]]]]]]:
+        """
+        Process a single directory, collecting information about its files and subdirectories.
+
+        :param root: Path to the current directory.
+        :param dirs: List of subdirectory names in the current directory.
+        :param files: List of file names in the current directory.
+        :return: Dictionary containing information about the directory.
+        """
         if self.stop_requested:
             raise DirectoryLoggerError("Logging process stopped by user.")
         
@@ -94,6 +128,12 @@ class DirectoryLogger:
         return directory_info
 
     def log_directory_with_metadata(self) -> None:
+        """
+        Main method to traverse the directory structure and log metadata.
+
+        This method walks through the directory tree, processes each directory,
+        and writes the output in the specified format.
+        """
         self.setup_logging()
         self.log_data = []
         self.total_items = 0
@@ -147,10 +187,12 @@ class DirectoryLogger:
             logging.exception(f"An unexpected error occurred: {e}")
 
     def write_json_output(self) -> None:
+        """Write the log data to a JSON file."""
         with open(self.log_file, "w") as f:
             json.dump(self.log_data, f, indent=4)
 
     def write_csv_output(self) -> None:
+        """Write the log data to a CSV file."""
         with open(self.log_file, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(
@@ -172,6 +214,7 @@ class DirectoryLogger:
                     )
 
     def write_text_output(self) -> None:
+        """Write the log data to a plain text file."""
         with open(self.log_file, "w") as f:
             for entry in self.log_data:
                 f.write(f"Directory: {entry['Directory']}\n")
@@ -184,6 +227,7 @@ class DirectoryLogger:
                 f.write("\n")
 
     def write_xml_output(self) -> None:
+        """Write the log data to an XML file."""
         root = ET.Element("DirectoryLog")
         for entry in self.log_data:
             dir_elem = ET.SubElement(root, "Directory", path=entry["Directory"])
@@ -199,6 +243,11 @@ class DirectoryLogger:
         tree.write(self.log_file, encoding="unicode", xml_declaration=True)
 
     def get_progress(self) -> float:
+        """
+        Calculate the current progress of the logging process.
+
+        :return: Percentage of items processed.
+        """
         return (
             (self.processed_items / self.total_items) * 100
             if self.total_items > 0
@@ -206,16 +255,29 @@ class DirectoryLogger:
         )
 
     def stop(self) -> None:
+        """Set the stop flag to interrupt the logging process."""
         self.stop_requested = True
 
 
 def load_config(config_file: str) -> Dict[str, str]:
+    """
+    Load configuration from a file.
+
+    :param config_file: Path to the configuration file.
+    :return: Dictionary containing configuration options.
+    """
     config = configparser.ConfigParser()
     config.read(config_file)
     return dict(config["DEFAULT"])
 
 
 def main() -> None:
+    """
+    Main function to parse command-line arguments and run the directory logger.
+
+    This function sets up the argument parser, processes command-line arguments,
+    loads configuration (if specified), and initializes the DirectoryLogger.
+    """
     parser = argparse.ArgumentParser(
         description="Log directory contents with metadata."
     )
