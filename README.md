@@ -19,7 +19,7 @@ Directory Logger is a powerful and flexible tool for generating detailed logs of
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/directory-logger.git
+   git clone https://github.com/Xza85hrf/directory-logger.git
    cd directory-logger
    ```
 
