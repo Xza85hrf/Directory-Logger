@@ -30,6 +30,11 @@ from dir_log_gen import DirectoryLogger, DirectoryLoggerError
 
 
 class LoggerThread(QThread):
+    """
+    A QThread subclass for running the directory logging process in the background.
+    This allows the GUI to remain responsive during logging operations.
+    """
+
     update_signal = Signal(str)
     progress_signal = Signal(float)
     finished_signal = Signal()
@@ -39,6 +44,9 @@ class LoggerThread(QThread):
         self.logger = logger
 
     def run(self):
+        """
+        Execute the logging process and emit signals for updates and completion.
+        """
         try:
             self.logger.log_directory_with_metadata()
             self.update_signal.emit(
@@ -53,6 +61,11 @@ class LoggerThread(QThread):
 
 
 class LogHandler(logging.Handler):
+    """
+    Custom logging handler that emits log messages through a Qt signal.
+    This allows log messages to be displayed in the GUI.
+    """
+
     def __init__(self, signal):
         super().__init__()
         self.signal = signal
@@ -63,6 +76,11 @@ class LogHandler(logging.Handler):
 
 
 class MainWindow(QMainWindow):
+    """
+    The main window of the Directory Logger GUI application.
+    This class sets up the user interface and handles user interactions.
+    """
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Directory Logger")
@@ -262,6 +280,9 @@ class MainWindow(QMainWindow):
         self.add_tooltips()
 
     def add_tooltips(self):
+        """
+        Add tooltips to various UI elements to provide additional information to the user.
+        """
         self.dir_input.setToolTip("Select the directory you want to log")
         self.log_input.setToolTip("Choose where to save the log file")
         self.extension_input.setToolTip(
@@ -278,16 +299,25 @@ class MainWindow(QMainWindow):
         self.stop_button.setToolTip("Stop the current logging process")
 
     def select_directory(self):
+        """
+        Open a file dialog for the user to select a directory to log.
+        """
         directory = QFileDialog.getExistingDirectory(self, "Select Directory")
         if directory:
             self.dir_input.setText(directory)
 
     def select_log_file(self):
+        """
+        Open a file dialog for the user to select a location to save the log file.
+        """
         file_name, _ = QFileDialog.getSaveFileName(self, "Select Log File")
         if file_name:
             self.log_input.setText(file_name)
 
     def run_logger(self):
+        """
+        Start the logging process based on the user's input and settings.
+        """
         path = self.dir_input.text()
         log_file = self.log_input.text()
         file_extension = self.extension_input.text() or None
@@ -323,6 +353,9 @@ class MainWindow(QMainWindow):
         self.progress_timer.start(100)  # Update every 100ms
 
     def stop_logger(self):
+        """
+        Stop the ongoing logging process.
+        """
         if self.logger:
             self.logger.stop()
         logging.info("Stopping logging process")
@@ -330,21 +363,33 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
 
     def update_output(self, message):
+        """
+        Update the output text area with a new message.
+        """
         self.output_area.append(message)
         logging.debug(f"GUI output: {message}")
 
     def update_progress(self):
+        """
+        Update the progress bar based on the current logging progress.
+        """
         if self.logger:
             progress = self.logger.get_progress()
             self.progress_bar.setValue(int(progress))
 
     def on_logging_finished(self):
+        """
+        Handle the completion of the logging process.
+        """
         self.run_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.progress_timer.stop()
         self.progress_bar.setValue(100)
 
     def save_configuration(self):
+        """
+        Save the current configuration to a JSON file.
+        """
         file_name, _ = QFileDialog.getSaveFileName(
             self, "Save Configuration", "", "JSON Files (*.json)"
         )
@@ -362,6 +407,9 @@ class MainWindow(QMainWindow):
             logging.info(f"Configuration saved to {file_name}")
 
     def load_configuration(self):
+        """
+        Load a configuration from a JSON file and update the UI accordingly.
+        """
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Load Configuration", "", "JSON Files (*.json)"
         )
