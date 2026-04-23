@@ -1,24 +1,25 @@
 # Core dependencies
-pathlib==1.0.1
-typing-extensions==4.5.0
+#   pathlib is part of the Python 3 standard library; the old PyPI
+#   backport (pathlib 1.0.x) shadows it and must not be installed.
+typing-extensions>=4.5
 
-# GUI dependencies
-PySide6==6.5.0
+# GUI dependencies (PySide6 6.8.0.2 is the first release with Python 3.13 wheels)
+PySide6>=6.8.0.2
 
 # Testing dependencies
-pytest==7.3.1
-pytest-cov==4.0.0
+pytest>=7.3
+pytest-cov>=4.0
 
 # Development tools
-black==23.3.0
-isort==5.12.0
-flake8==6.0.0
+black>=24.0
+isort>=5.12
+flake8>=6.0
 
-# XML handling (for the new XML output format)
-lxml==4.9.2
+# XML handling
+lxml>=5.0
 
-# Progress bar for CLI (optional, if you want to add a progress bar to the CLI version)
-tqdm==4.65.0
+# Progress bar for CLI
+tqdm>=4.65
 
-# Logging enhancements (optional, for more advanced logging capabilities)
-structlog==23.1.0
+# Logging enhancements
+structlog>=23.1

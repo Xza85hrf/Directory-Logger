@@ -20,7 +20,7 @@ Directory Logger is a powerful and flexible tool for generating detailed logs of
 
    ```sh
    git clone https://github.com/Xza85hrf/Directory-Logger.git
-   cd directory-logger
+   cd Directory-Logger
    ```
 
 2. Create a virtual environment (optional but recommended):
